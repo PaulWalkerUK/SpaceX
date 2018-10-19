@@ -12,6 +12,9 @@ $ManifestFile = "$(Split-path (Split-Path -Parent -Path $MyInvocation.MyCommand.
 # Unload any module with same name
 Get-Module -Name $ModuleName -All | Remove-Module -Force -ErrorAction Ignore
 
+# Note original security protocols
+$OriginalSecurityProtocols = [Net.ServicePointManager]::SecurityProtocol
+
 # Import Module
 $ModuleInformation = Import-Module -Name $ManifestFile -Force -ErrorAction Stop -PassThru
 
@@ -53,6 +56,15 @@ Describe "$ModuleName Module - Testing Manifest File (.psd1)"{
         }
     }
 }
+
+Describe "$ModuleName Module - Import" {
+    Context "Import-Module" {
+        It "shouldn't change security protocol" {
+            [Net.ServicePointManager]::SecurityProtocol | Should Be $OriginalSecurityProtocols
+        }
+    }
+}
+
 <#
     Generic tests
 #>
@@ -121,6 +133,9 @@ Describe 'Get-SXApi' {
         }
         It 'gets a single object' {
             $returnedData.getType() | Should Be 'System.Management.Automation.PSCustomObject'
+        }
+        It "doesn't change security protocol" {
+            [Net.ServicePointManager]::SecurityProtocol | Should Be $OriginalSecurityProtocols
         }
     }
 }

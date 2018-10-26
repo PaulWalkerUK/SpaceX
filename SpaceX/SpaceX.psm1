@@ -18,5 +18,14 @@ Foreach ($import in @($Public + $Private))
 # Export all the functions
 Export-ModuleMember -Function $Public.Basename -Alias *
 
-# Set Powershell to use TLS v1.2 (minimum supported by SpaceX API)
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$SecurityProtocolTweakRequired = $False
+
+TRY
+{
+	Get-SXApi|Out-Null
+}
+CATCH
+{
+	Write-Verbose "Unable to connect using existing SecurityProtocol - will need to be tweaked for each call"
+	$SecurityProtocolTweakRequired = $true
+}

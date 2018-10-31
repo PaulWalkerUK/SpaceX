@@ -164,6 +164,9 @@ Describe 'Get-SXCompany' {
         It 'gets a single object' {
             $returnedData.getType() | Should Be 'System.Management.Automation.PSCustomObject'
         }
+        It "doesn't change security protocol" {
+            [Net.ServicePointManager]::SecurityProtocol | Should Be $OriginalSecurityProtocols
+        }
     }
 }
 
